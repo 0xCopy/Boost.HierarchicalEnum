@@ -1,3 +1,7 @@
+// Copyright 2010-2011 Vincent Jacques <vincent@vincent-jacques.net>
+// Distributed under the Boost license, version 1.0
+// See http://www.boost.org/LICENSE_1_0.txt
+
 #ifndef boost_hierarchical_enum_father_hpp
 #define boost_hierarchical_enum_father_hpp
 

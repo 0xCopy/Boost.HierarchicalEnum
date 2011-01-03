@@ -1,3 +1,7 @@
+// Copyright 2010-2011 Vincent Jacques <vincent@vincent-jacques.net>
+// Distributed under the Boost license, version 1.0
+// See http://www.boost.org/LICENSE_1_0.txt
+
 #include <iostream>
 
 #include <boost/hierarchical_enum/hierarchical_enum.hpp>
