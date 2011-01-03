@@ -1,24 +1,29 @@
 == Introduction
 
-Beast.HierarchicalEnum is a library that allows you to add a tree-like relation on the enumerators of a C++ enum.
+Boost.HierarchicalEnum is a library that allows you to add a tree-like relation on the enumerators of a C++ enum.
 Once you have defined a HierarchicalEnum, you can use this library to aswers questions like "Is A a descendant of B?" or "What is the nearest common ancester of A and B?"
+
+Important note: this library is <em>candidate</em> to become part of <a>Boost</a>. This documentation and the code are written as if it was already in Boost, only to ease the peer review process, not to pretend that the library has already been accepted.
 
 == Quick start
 
 First define your HierarchicalEnum:
 
-BEAST_HIERARCHICAL_ENUM( MovingState, ... )
+BOOST_HIERARCHICAL_ENUM(
+    MovingState,
+    (( Still, DEF(), (Laying)(Siting) ))
+    (( Laying, DEF(), BOOST_PP_SEQ_NIL ))
+    (( Siting, DEF(), BOOST_PP_SEQ_NIL ))
+    (( Moving, DEF(), (Walking)(Swimming) ))
+    (( Walking, DEF( ), (Running) ))
+    (( Running, DEF(), BOOST_PP_SEQ_NIL ))
+    (( Swimming, DEF(), BOOST_PP_SEQ_NIL ))
+)
 
-This defines a C++ enum named MovingState, and some template specializations to let you use the <a>Beast.HierarchicalEnum functions</a>.
+This defines a C++ enum named MovingState, and some template specializations to let you use the <a>Boost.HierarchicalEnum functions</a>.
 The relationships between the enumerators are as shown in this graph:
 
-digraph D {
-    Walking -> Moving;
-    Swimming -> Moving;
-    Laying -> Still;
-    Siting -> Still;
-    ...
-}
+<img src="Documentation.png"/>
 
 Now, you can declare variables of type MovingState:
 
@@ -29,7 +34,7 @@ MovingState d = Moving;
 
 You can then query the library about relationships between those variables.
 
-namespace bhe = beast::hierarchical_enum;
+namespace bhe = boost::hierarchical_enum;
 bool s = bhe::is_descendant_of( a, c ) // false
 bool t = bhe::is_ascendant_of( d, b ) // true
 MovingState u = bhe::first_common_ascendant_of( a, d ) // Moving
@@ -41,34 +46,34 @@ bhe::children_of< Moving_c >::type // boost::mpl::vector_< Walking_c, Swimming_c
 
 == Misclaneous notes
 
-The current implementation of Beast.HierarchicalEnum is such that all results are pre-computed at compile-time with help of Boost.Mpl,
-and that run-time versions of the functions are as efficient as a simple switch on the argument, then return a constant.
+The current implementation of Boost.HierarchicalEnum is such that all results are pre-computed at compile-time with help of Boost.Mpl, and that run-time versions of the functions are as efficient as a simple switch on the argument, then return a constant.
 The trade-off is that compilation time can be quite long, especialy for HierarchicalEnums with many enumerators, due to many template instanciations.
-The trick is to encapsulate the calls to this library in your own functions, which are compiled only once in one givent translation unit.
-It is often a good idea to encapsulate this library into functions with names significant for your application domain.
+The trick is to encapsulate the calls to this library in your own functions, which are compiled only once in one given translation unit.
+It is anyway a good idea to encapsulate this library into functions with names significant for your application domain.
 A positive side-effect is that it narrows the wide interface of the library to only the functions which are meaningfull to you.
 
 // MovingState.hpp
-#include <beast/hierarchical_enum.hpp>
+#include <boost/hierarchical_enum.hpp>
 
-BEAST_HIERARCHICAL_ENUM( MovingState, ... )
+BOOST_HIERARCHICAL_ENUM( MovingState, ... )
 bool isMoving( MovingState );
 
 // MovingState.cpp
 #include "MovingState.hpp"
 
+namespace bhe = boost::hierarchical_enum;
+
 bool isMoving( MovingState m ) {
     return bhe::is_descendant_of< Moving >( m );
 }
 
-This library is candidate to become part of <a>Boost</a>. As such, it's implementation /and/ interface will be subject to as many changes as required by the peer review process.
-An obvious point is that if it gets through the process, any occurence of beast, Beast and BEAST will be replaced by boost, Boost, and BOOST.
-Anyway the core functionalities will remain, so you are likely to be able to use the next versions, provided that you have encapsulated the calls to Beast.HierarchicalEnum in your own functions.
+This library is candidate to become part of <a>Boost</a>. As such, it's implementation <em>and</em> interface will be subject to as many changes as required by the peer review process.
+In any case, the core functionalities will remain, so you are likely to be able to use the next versions, provided that you have encapsulated the calls to Boost.HierarchicalEnum.
 
 As the author of this library, I would be glad to have any kind of feedback from your experience with it.
 Be it "it sucks", "it's wonderful", or anything in the middle, with or without detailed explaination of why you think so,
 I would be very greatfull if you took time to write a mail, either to the Boost mailing list or to my personnal address. (Prefer the mailing list for detailed critisisms that would help the review process)
-Do not hesitate to critisize the documentation, the interface, the implementation and evne my english language, since it's not my mother thong. These are all subjects to improvments.
+Do not hesitate to critisize the documentation, the interface, the implementation and even my english language, since it's not my mother thong. These are all subjects to improvments.
 
 == Reference
 
@@ -76,22 +81,23 @@ Do not hesitate to critisize the documentation, the interface, the implementatio
 
 ==== Simple case
 
-BEAST_HIERARCHICAL_ENUM
-
-==== Specify the values
-
-If you want to give specific values to the enumerators of your enum, please use:
-
-BEAST_HIERARCHICAL_ENUM_WITH_VALUES
+BOOST_HIERARCHICAL_ENUM( EnumName, Enumerators )
+where:
+    EnumName is the name of the enum t be declared
+    Enumerators is a Boost.Preprocessor Sequence (Enumerator1)(Value2)...(ValueN)
+    ValueI is a Boost.Preprocessor Tuple ( ValueName, 
 
 ==== Namespaces
 
-Unfortunately, the current implementation of those macros define some template specializations that must live in the ::beast namespace.
+Unfortunately, the current implementation of those macros define some template specializations that must live in the ::boost namespace.
 This doesn't allow you to define a HierarchicalEnum inside your own namespace.
 To define a HierarchicalEnum inside a namespace, you have to use:
 
-BEAST_HIERARCHICAL_ENUM_NS
-BEAST_HIERARCHICAL_ENUM_NS_WITH_VALUES
+BOOST_HIERARCHICAL_ENUM_NS( Namespaces, EnumName, Values )
+where:
+    Namespaces is the Boost.Preprocessor Sequence of the namespaces where the HierarchicalEnum must be declared, from the outer to the inner one.
+    EnumName is as for BOOST_HIERARCHICAL_ENUM
+    Values is as for BOOST_HIERARCHICAL_ENUM
 
 === Queries about a HierarchicalEnum
 
@@ -154,29 +160,3 @@ first_common_ascendant_of A and B is the C in common_ascendants_of A and B such 
 
 ===== first_strict_common_ascendant_of
 first_strict_common_ascendant_of A and B is the C in strict_common_ascendants_of A and B such that for any D in strict_common_ascendants_of A and B, D is_ascendant_of C
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

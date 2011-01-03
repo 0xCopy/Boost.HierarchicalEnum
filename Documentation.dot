@@ -1,0 +1,8 @@
+digraph D {
+    rankdir=BT;
+    Walking -> Moving;
+    Running -> Walking;
+    Swimming -> Moving;
+    Laying -> Still;
+    Siting -> Still;
+}
