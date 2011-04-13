@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import sys
 
 class Node:
     def __init__( self, name, value ):
@@ -36,52 +37,6 @@ class Test:
                 if len( son.name ) == len( father.name ) + 1 and son.name.startswith( father.name ):
                     father.addChild( son );
                     son.setFather( father );
-
-tests = [
-    Test( "basic",
-        {
-            "A": None,
-            "B": None,
-            "AA": "42",
-            "AB": None,
-            "BA": None,
-            "BB": "AA + 56",
-            "BAA": None,
-        }
-    ),
-    Test( "one_node",
-        {
-            "A": None,
-        },
-        namespace = "One::Node"
-    ),
-    Test( "long_branch",
-        {
-            "A": None,
-            "AA": None,
-            "AAA": None,
-            "AAAA": None,
-            "AAAAA": None,
-            "AAAAAA": None,
-            "AAAAAAA": None,
-            "AAAAAAAA": None,
-            "AAAAAAAAA": None,
-            "AAAAAAAAAA": None,
-        }
-    ),
-    Test( "wide_tree",
-        {
-            "A": None,
-            "B": None,
-            "C": None,
-            "D": None,
-            "E": None,
-            "F": None,
-            "G": None,
-            "GA": None,
-        }
-    ),
-]
 
 def generatedFileName( test, file ):
     return "build/gen/test/%s/%s" % ( test.name, file )
@@ -299,8 +254,64 @@ generatedFiles = {
     "is_descendant_of.cpp": lambda test: genMembershipBinaryPredicate( test, "is_descendant_of", Node.descendants, "descendants" ),
 }
 
+tests = [
+    Test( "basic",
+        {
+            "A": None,
+            "B": None,
+            "AA": "42",
+            "AB": None,
+            "BA": None,
+            "BB": "AA + 56",
+            "BAA": None,
+        }
+    ),
+    Test( "one_node",
+        {
+            "A": None,
+        },
+        namespace = "One::Node"
+    ),
+    Test( "long_branch",
+        {
+            "A": None,
+            "AA": None,
+            "AAA": None,
+            "AAAA": None,
+            "AAAAA": None,
+            "AAAAAA": None,
+            "AAAAAAA": None,
+            "AAAAAAAA": None,
+            "AAAAAAAAA": None,
+            "AAAAAAAAAA": None,
+        }
+    ),
+    Test( "wide_tree",
+        {
+            "A": None,
+            "B": None,
+            "C": None,
+            "D": None,
+            "E": None,
+            "F": None,
+            "G": None,
+            "GA": None,
+        }
+    ),
+]
+
+class TestGenerator:
+    def __init__( self, path, tests ):
+        self.__path = path
+        self.__tests = tests
+
+    def generate( self ):
+        for test in self.__tests:
+            for file in generatedFiles:
+                generatedFiles[ file ]( test )
+
 if __name__ == "__main__":
-    for test in tests:
-        for file in generatedFiles:
-            generatedFiles[ file ]( test )
-    exit()
+    path = ""
+    if len( sys.argv ) > 1:
+        path = sys.argv[ 1 ]
+    TestGenerator( path, tests ).generate()
