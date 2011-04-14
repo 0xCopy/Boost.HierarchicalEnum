@@ -100,6 +100,10 @@ class TestGenerator:
     def __init__( self, path, test ):
         self.__path = path
         self.__test = test
+        if self.__test.namespace:
+            self.__namespace = "tst::"
+        else:
+            self.__namespace = ""
     
     def generate( self ):
         self.__genHeaderHpp()
@@ -129,7 +133,7 @@ class TestGenerator:
         self.__genMembershipBinaryPredicate( "is_descendant_of", Node.descendants, "descendants" )
     
     def __genHeaderHpp( self ):
-        f = self.__reallyOpen( self.__generatedFileName( "header.hpp" ) )
+        f = self.__open( "header.hpp" )
         f.write( "#ifndef test_%s_header_hpp\n" % self.__test.name )
         f.write( "#define test_%s_header_hpp\n" % self.__test.name )
         f.write( "\n" )
@@ -160,13 +164,122 @@ class TestGenerator:
         f.write( "#endif // Include guard\n" )
 
     def __genMainCpp( self ):
-        f = self.__reallyOpen( self.__generatedFileName( "main.cpp" ) )
+        f = self.__open( "main.cpp" )
         f.write( "#define BOOST_TEST_DYN_LINK\n" )
         f.write( "#define BOOST_TEST_MAIN\n" )
         f.write( "#include <boost/test/unit_test.hpp>\n" )
 
+    def __genFatherCpp( self ):
+        f = self.__openAndWriteTestHeader( "father", None )
+
+        for node in self.__test.nodes:
+            if node.father():
+                f.write( "    BOOST_MPL_ASSERT(( boost::mpl::equal_to< bhe::mp::father< %s%s_c >, %s%s_c > ));\n" % ( self.__namespace, node.name, self.__namespace, node.father().pop().name ) )
+                f.write( "    BOOST_CHECK_EQUAL( bhe::father( %s%s ), %s%s );\n" % ( self.__namespace, node.name, self.__namespace, node.father().pop().name ) )
+            else:
+                f.write( "    BOOST_CHECK_THROW( bhe::father( %s%s ), int );\n" % ( self.__namespace, node.name ) )
+
+        self.__writeTestFooter( f )
+
+    def __genUnaryCollection( self, functionName, collection, header ):
+        f = self.__openAndWriteTestHeader( functionName, header )
+
+        for node in self.__test.nodes:
+            elements = sorted( collection( node ), key = lambda n : n.name )
+            f.write( "    BOOST_MPL_ASSERT(( boost::mpl::equal< bhe::mp::%s< %s%s_c >, boost::mpl::vector< " % ( functionName, self.__namespace, node.name ) )
+            f.write( ", ".join( [ self.__namespace + e.name + "_c" for e in elements ] ) )
+            if elements: f.write( " " )
+            f.write( "> > ));\n" )
+            if len( elements ) != 0:
+                f.write( "    BOOST_CHECK( bhe::%s( %s%s ) == boost::assign::list_of(" % ( functionName, self.__namespace, node.name ) )
+                f.write( ")(".join( [ self.__namespace + e.name for e in elements ] ) )
+                f.write( ") );\n" )
+            else:
+                f.write( "    BOOST_CHECK( bhe::%s( %s%s ).empty() );\n" % ( functionName, self.__namespace, node.name ) )
+
+        self.__writeTestFooter( f )
+
+    def __genBinaryCollection( self, functionName, collection, header ):
+        f = self.__openAndWriteTestHeader( functionName, header )
+
+        for n1 in self.__test.nodes:
+            for n2 in self.__test.nodes:
+                elements = sorted( collection( n1 ) & collection( n2 ), key = lambda n : n.name )
+                f.write( "    BOOST_MPL_ASSERT(( boost::mpl::equal< bhe::mp::%s< %s%s_c, %s%s_c >, boost::mpl::vector< " % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                f.write( ", ".join( [ self.__namespace + e.name + "_c" for e in elements ] ) )
+                if elements: f.write( " " )
+                f.write( "> > ));\n" )
+                if len( elements ) != 0:
+                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ) == boost::assign::list_of(" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                    f.write( ")(".join( [ self.__namespace + e.name for e in elements ] ) )
+                    f.write( ") );\n" )
+                else:
+                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ).empty() );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+            f.write( "\n" )
+
+        self.__writeTestFooter( f )
+
+    def __genNonEmptyUnaryPredicate( self, functionName, collection, header ):
+        f = self.__openAndWriteTestHeader( functionName, header )
+
+        for node in self.__test.nodes:
+            if collection( node ):
+                f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c > ));\n" % ( functionName, self.__namespace, node.name ) )
+                f.write( "    BOOST_CHECK( bhe::%s( %s%s ) );\n" % ( functionName, self.__namespace, node.name ) )
+            else:
+                f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c > ));\n" % ( functionName, self.__namespace, node.name ) )
+                f.write( "    BOOST_CHECK( !bhe::%s( %s%s ) );\n" % ( functionName, self.__namespace, node.name ) )
+
+        self.__writeTestFooter( f )
+
+    def __genNonEmptyBinaryPredicate( self, functionName, collection, header ):
+        f = self.__openAndWriteTestHeader( functionName, header )
+
+        for n1 in self.__test.nodes:
+            for n2 in self.__test.nodes:
+                if collection( n1 ) & collection( n2 ):
+                    f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ) );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                else:
+                    f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                    f.write( "    BOOST_CHECK( !bhe::%s( %s%s, %s%s ) );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+            f.write( "\n" )
+
+        self.__writeTestFooter( f )
+
+    def __genMembershipBinaryPredicate( self, functionName, collection, header = None ):
+        f = self.__openAndWriteTestHeader( functionName, header )
+
+        for n1 in self.__test.nodes:
+            for n2 in self.__test.nodes:
+                if n1 in collection( n2 ):
+                    f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ) );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                else:
+                    f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+                    f.write( "    BOOST_CHECK( !bhe::%s( %s%s, %s%s ) );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name ) )
+            f.write( "\n" )
+
+        self.__writeTestFooter( f )
+
+    def __genMembershipTernaryPredicate( self, functionName, collection, header ):
+        f = self.__openAndWriteTestHeader( functionName, header )
+
+        for n1 in self.__test.nodes:
+            for n2 in self.__test.nodes:
+                for n3 in self.__test.nodes:
+                    if n1 in collection( n2 ) & collection( n3 ):
+                        f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c, %s%s_c, %s%s_c > ));\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name, self.__namespace, n3.name ) )
+                        f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s, %s%s ) );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name, self.__namespace, n3.name ) )
+                    else:
+                        f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c, %s%s_c, %s%s_c > ));\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name, self.__namespace, n3.name ) )
+                        f.write( "    BOOST_CHECK( !bhe::%s( %s%s, %s%s, %s%s ) );\n" % ( functionName, self.__namespace, n1.name, self.__namespace, n2.name, self.__namespace, n3.name ) )
+                f.write( "\n" )
+
+        self.__writeTestFooter( f )
+
     def __openAndWriteTestHeader( self, functionName, header ):
-        f = self.__reallyOpen( self.__generatedFileName( functionName + ".cpp" ) )
+        f = self.__open( functionName + ".cpp" )
         f.write( "#include \"header.hpp\"\n" )
         f.write( "\n" )
         if header:
@@ -179,136 +292,26 @@ class TestGenerator:
         f.write( "#include <boost/assign/list_of.hpp>\n" )
         f.write( "\n" )
         f.write( "namespace bhe = boost::hierarchical_enum;\n" )
-        ns = ""
         if self.__test.namespace:
-            ns = "tst::"
             f.write( "namespace tst = %s;\n" % self.__test.namespace )
         f.write( "\n" )
         f.write( "BOOST_AUTO_TEST_CASE( %s ) {\n" % functionName )
-        return f, ns
+        return f
 
     def __writeTestFooter( self, f ):
         f.write( "}\n" )
 
-    def __genFatherCpp( self ):
-        f, ns = self.__openAndWriteTestHeader( "father", None )
-
-        for node in self.__test.nodes:
-            if node.father():
-                f.write( "    BOOST_MPL_ASSERT(( boost::mpl::equal_to< bhe::mp::father< %s%s_c >, %s%s_c > ));\n" % ( ns, node.name, ns, node.father().pop().name ) )
-                f.write( "    BOOST_CHECK_EQUAL( bhe::father( %s%s ), %s%s );\n" % ( ns, node.name, ns, node.father().pop().name ) )
-            else:
-                f.write( "    BOOST_CHECK_THROW( bhe::father( %s%s ), int );\n" % ( ns, node.name ) )
-
-        self.__writeTestFooter( f )
-
-    def __genUnaryCollection( self, functionName, collection, header ):
-        f, ns = self.__openAndWriteTestHeader( functionName, header )
-
-        for node in self.__test.nodes:
-            elements = sorted( collection( node ), key = lambda n : n.name )
-            f.write( "    BOOST_MPL_ASSERT(( boost::mpl::equal< bhe::mp::%s< %s%s_c >, boost::mpl::vector< " % ( functionName, ns, node.name ) )
-            f.write( ", ".join( [ ns + e.name + "_c" for e in elements ] ) )
-            if elements: f.write( " " )
-            f.write( "> > ));\n" )
-            if len( elements ) != 0:
-                f.write( "    BOOST_CHECK( bhe::%s( %s%s ) == boost::assign::list_of(" % ( functionName, ns, node.name ) )
-                f.write( ")(".join( [ ns + e.name for e in elements ] ) )
-                f.write( ") );\n" )
-            else:
-                f.write( "    BOOST_CHECK( bhe::%s( %s%s ).empty() );\n" % ( functionName, ns, node.name ) )
-
-        self.__writeTestFooter( f )
-
-    def __genBinaryCollection( self, functionName, collection, header ):
-        f, ns = self.__openAndWriteTestHeader( functionName, header )
-
-        for n1 in self.__test.nodes:
-            for n2 in self.__test.nodes:
-                elements = sorted( collection( n1 ) & collection( n2 ), key = lambda n : n.name )
-                f.write( "    BOOST_MPL_ASSERT(( boost::mpl::equal< bhe::mp::%s< %s%s_c, %s%s_c >, boost::mpl::vector< " % ( functionName, ns, n1.name, ns, n2.name ) )
-                f.write( ", ".join( [ ns + e.name + "_c" for e in elements ] ) )
-                if elements: f.write( " " )
-                f.write( "> > ));\n" )
-                if len( elements ) != 0:
-                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ) == boost::assign::list_of(" % ( functionName, ns, n1.name, ns, n2.name ) )
-                    f.write( ")(".join( [ ns + e.name for e in elements ] ) )
-                    f.write( ") );\n" )
-                else:
-                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ).empty() );\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-            f.write( "\n" )
-
-        self.__writeTestFooter( f )
-
-    def __genNonEmptyUnaryPredicate( self, functionName, collection, header ):
-        f, ns = self.__openAndWriteTestHeader( functionName, header )
-
-        for node in self.__test.nodes:
-            if collection( node ):
-                f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c > ));\n" % ( functionName, ns, node.name ) )
-                f.write( "    BOOST_CHECK( bhe::%s( %s%s ) );\n" % ( functionName, ns, node.name ) )
-            else:
-                f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c > ));\n" % ( functionName, ns, node.name ) )
-                f.write( "    BOOST_CHECK( !bhe::%s( %s%s ) );\n" % ( functionName, ns, node.name ) )
-
-        self.__writeTestFooter( f )
-
-    def __genNonEmptyBinaryPredicate( self, functionName, collection, header ):
-        f, ns = self.__openAndWriteTestHeader( functionName, header )
-
-        for n1 in self.__test.nodes:
-            for n2 in self.__test.nodes:
-                if collection( n1 ) & collection( n2 ):
-                    f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ) );\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-                else:
-                    f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-                    f.write( "    BOOST_CHECK( !bhe::%s( %s%s, %s%s ) );\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-            f.write( "\n" )
-
-        self.__writeTestFooter( f )
-
-    def __genMembershipBinaryPredicate( self, functionName, collection, header = None ):
-        f, ns = self.__openAndWriteTestHeader( functionName, header )
-
-        for n1 in self.__test.nodes:
-            for n2 in self.__test.nodes:
-                if n1 in collection( n2 ):
-                    f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-                    f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s ) );\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-                else:
-                    f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c, %s%s_c > ));\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-                    f.write( "    BOOST_CHECK( !bhe::%s( %s%s, %s%s ) );\n" % ( functionName, ns, n1.name, ns, n2.name ) )
-            f.write( "\n" )
-
-        self.__writeTestFooter( f )
-
-    def __genMembershipTernaryPredicate( self, functionName, collection, header ):
-        f, ns = self.__openAndWriteTestHeader( functionName, header )
-
-        for n1 in self.__test.nodes:
-            for n2 in self.__test.nodes:
-                for n3 in self.__test.nodes:
-                    if n1 in collection( n2 ) & collection( n3 ):
-                        f.write( "    BOOST_MPL_ASSERT    (( bhe::mp::%s< %s%s_c, %s%s_c, %s%s_c > ));\n" % ( functionName, ns, n1.name, ns, n2.name, ns, n3.name ) )
-                        f.write( "    BOOST_CHECK( bhe::%s( %s%s, %s%s, %s%s ) );\n" % ( functionName, ns, n1.name, ns, n2.name, ns, n3.name ) )
-                    else:
-                        f.write( "    BOOST_MPL_ASSERT_NOT(( bhe::mp::%s< %s%s_c, %s%s_c, %s%s_c > ));\n" % ( functionName, ns, n1.name, ns, n2.name, ns, n3.name ) )
-                        f.write( "    BOOST_CHECK( !bhe::%s( %s%s, %s%s, %s%s ) );\n" % ( functionName, ns, n1.name, ns, n2.name, ns, n3.name ) )
-                f.write( "\n" )
-
-        self.__writeTestFooter( f )
-
-    def __generatedFileName( self, file ):
-        return os.path.join( self.__path, "gen", "test", self.__test.name, file )
-
-    def __reallyOpen( self, f ):
+    def __open( self, f ):
+        f = self.__computeFileName( f )
         d = os.path.dirname( f )
         try:
             os.makedirs( d )
         except OSError:
             pass
         return open( f, "w" )
+
+    def __computeFileName( self, file ):
+        return os.path.join( self.__path, "gen", "test", self.__test.name, file )
 
 if __name__ == "__main__":
     path = ""
