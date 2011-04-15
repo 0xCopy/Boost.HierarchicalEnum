@@ -42,60 +42,6 @@ class Test:
                     father.addChild( son );
                     son.setFather( father );
 
-class TestsGenerator:
-    def __init__( self, path ):
-        self.__path = path
-        self.__tests = [
-            Test( "basic",
-                {
-                    "A": None,
-                    "B": None,
-                    "AA": "42",
-                    "AB": None,
-                    "BA": None,
-                    "BB": "AA + 56",
-                    "BAA": None,
-                }
-            ),
-            Test( "one_node",
-                {
-                    "A": None,
-                },
-                namespace = "One::Node"
-            ),
-            Test( "long_branch",
-                {
-                    "A": None,
-                    "AA": None,
-                    "AAA": None,
-                    "AAAA": None,
-                    "AAAAA": None,
-                    "AAAAAA": None,
-                    "AAAAAAA": None,
-                    "AAAAAAAA": None,
-                    "AAAAAAAAA": None,
-                    "AAAAAAAAAA": None,
-                }
-            ),
-            Test( "wide_tree",
-                {
-                    "A": None,
-                    "B": None,
-                    "C": None,
-                    "D": None,
-                    "E": None,
-                    "F": None,
-                    "G": None,
-                    "GA": None,
-                }
-            ),
-        ]
-
-
-    def generate( self ):
-        for test in self.__tests:
-            TestGenerator( self.__path, test ).generate()
-
 class TestGenerator:
     def __init__( self, path, test ):
         self.__path = path
@@ -311,10 +257,84 @@ class TestGenerator:
         return open( f, "w" )
 
     def __computeFileName( self, file ):
-        return os.path.join( self.__path, "gen", "test", self.__test.name, file )
+        return os.path.join( self.__path, self.__test.name, file )
+
+tests = [
+    Test( "basic",
+        {
+            "A": None,
+            "B": None,
+            "AA": "42",
+            "AB": None,
+            "BA": None,
+            "BB": "AA + 56",
+            "BAA": None,
+        }
+    ),
+    Test( "one_node",
+        {
+            "A": None,
+        },
+        namespace = "One::Node"
+    ),
+    Test( "long_branch",
+        {
+            "A": None,
+            "AA": None,
+            "AAA": None,
+            "AAAA": None,
+            "AAAAA": None,
+            "AAAAAA": None,
+            "AAAAAAA": None,
+            "AAAAAAAA": None,
+            "AAAAAAAAA": None,
+            "AAAAAAAAAA": None,
+        }
+    ),
+    Test( "wide_tree",
+        {
+            "A": None,
+            "B": None,
+            "C": None,
+            "D": None,
+            "E": None,
+            "F": None,
+            "G": None,
+            "GA": None,
+        }
+    ),
+]
+
+files = [
+        "main.cpp",
+
+        "has_father.cpp",
+        "father.cpp",
+        "is_father_of.cpp",
+        "strict_ascendants.cpp",
+        "is_strict_ascendant_of.cpp",
+        "ascendants.cpp",
+        "is_ascendant_of.cpp",
+
+        "have_common_ascendant.cpp",
+        "common_ascendants.cpp",
+        "is_common_ascendant_of.cpp",
+        "have_common_strict_ascendant.cpp",
+        "common_strict_ascendants.cpp",
+        "is_common_strict_ascendant_of.cpp",
+
+        "has_child.cpp",
+        "children.cpp",
+        "is_child_of.cpp",
+        "strict_descendants.cpp",
+        "is_strict_descendant_of.cpp",
+        "descendants.cpp",
+        "is_descendant_of.cpp"
+]
 
 if __name__ == "__main__":
     path = ""
     if len( sys.argv ) > 1:
         path = sys.argv[ 1 ]
-    TestsGenerator( path ).generate()
+    for test in tests:
+        TestGenerator( path, test ).generate()
