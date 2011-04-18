@@ -44,14 +44,24 @@ struct translator< To, thrower, void > {
 };
 
 template< typename To, typename From >
-struct translator< const std::vector< To >&, From, typename boost::enable_if< boost::mpl::not_< boost::is_same< From, thrower > > >::type > {
+struct translator<
+    const std::vector< To >&,
+    From,
+    typename boost::enable_if<
+        boost::mpl::not_< boost::is_same< From, thrower > >
+    >::type
+>
+{
     static const std::vector< To >& value() {
         static const std::vector< To > v( valueImpl() );
         return v;
     }
+    
     static std::vector< To > valueImpl() {
         std::vector< To > v;
-        boost::mpl::for_each< From >( boost::bind( &std::vector< To >::push_back, &v, _1 ) );
+        boost::mpl::for_each< From >(
+            boost::bind( &std::vector< To >::push_back, &v, _1 )
+        );
         return v;
     }
 };
@@ -86,7 +96,13 @@ template<
     typename enable = void
 > struct Switch;
 
-template< typename HE, typename ReturnType, template< typename > class Function, template< typename > class Condition, class Enums >
+template<
+    typename HE,
+    typename ReturnType,
+    template< typename > class Function,
+    template< typename > class Condition,
+    class Enums
+>
 struct Switch< HE, ReturnType, 0, Function, Condition, Enums > {
     template< typename Tuple >
     static ReturnType exec( Tuple ) {
@@ -102,25 +118,40 @@ struct Switch< HE, ReturnType, 0, Function, Condition, Enums > {
 };
 
 template< int NumberOfArguments > struct MyAdapter;
-template<> struct MyAdapter< 1 > {
+
+template<>
+struct MyAdapter< 1 > {
     template< template< typename > class Function >
     struct Adapt {
         template< typename Enums >
-        struct type : Function< typename boost::mpl::at_c< Enums, 0 >::type > {};
+        struct type : Function<
+            typename boost::mpl::at_c< Enums, 0 >::type
+        > {};
     };
 };
-template<> struct MyAdapter< 2 > {
+
+template<>
+struct MyAdapter< 2 > {
     template< template< typename, typename > class Function >
     struct Adapt {
         template< typename Enums >
-        struct type : Function< typename boost::mpl::at_c< Enums, 0 >::type, typename boost::mpl::at_c< Enums, 1 >::type > {};
+        struct type : Function<
+            typename boost::mpl::at_c< Enums, 0 >::type,
+            typename boost::mpl::at_c< Enums, 1 >::type
+        > {};
     };
 };
-template<> struct MyAdapter< 3 > {
+
+template<>
+struct MyAdapter< 3 > {
     template< template< typename, typename, typename > class Function >
     struct Adapt {
         template< typename Enums >
-        struct type : Function< typename boost::mpl::at_c< Enums, 0 >::type, typename boost::mpl::at_c< Enums, 1 >::type, typename boost::mpl::at_c< Enums, 2 >::type > {};
+        struct type : Function<
+            typename boost::mpl::at_c< Enums, 0 >::type,
+            typename boost::mpl::at_c< Enums, 1 >::type,
+            typename boost::mpl::at_c< Enums, 2 >::type
+        > {};
     };
 };
 
@@ -146,8 +177,14 @@ struct unary_function : Switch<
 template<
     typename HE,
     typename ReturnType,
-    template< typename HE_c1, typename HE_c2 > class Function,
-    template< typename HE_c1, typename HE_c2 > class Condition = always_true_2
+    template<
+        typename HE_c1,
+        typename HE_c2
+    > class Function,
+    template<
+        typename HE_c1,
+        typename HE_c2
+    > class Condition = always_true_2
 >
 struct binary_function : Switch<
     HE,
@@ -155,7 +192,8 @@ struct binary_function : Switch<
     2,
     MyAdapter< 2 >::template Adapt< Function >::template type,
     MyAdapter< 2 >::template Adapt< Condition >::template type
->{
+>
+{
     static ReturnType value( HE e1, HE e2 ) {
         return exec( boost::fusion::make_tuple( e1, e2 ) );
     }
@@ -164,8 +202,16 @@ struct binary_function : Switch<
 template<
     typename HE,
     typename ReturnType,
-    template< typename HE_c1, typename HE_c2, typename HE_c3 > class Function,
-    template< typename HE_c1, typename HE_c2, typename HE_c3 > class Condition = always_true_3
+    template<
+        typename HE_c1,
+        typename HE_c2,
+        typename HE_c3
+    > class Function,
+    template<
+        typename HE_c1,
+        typename HE_c2,
+        typename HE_c3
+    > class Condition = always_true_3
 >
 struct ternary_function : Switch<
     HE,
@@ -173,12 +219,12 @@ struct ternary_function : Switch<
     3,
     MyAdapter< 3 >::template Adapt< Function >::template type,
     MyAdapter< 3 >::template Adapt< Condition >::template type
-> {
+>
+{
     static ReturnType value( HE e1, HE e2, HE e3 ) {
         return exec( boost::fusion::make_tuple( e1, e2, e3 ) );
     }
 };
-
 
 } // namespace details
 } // namespace hierarchical_enum

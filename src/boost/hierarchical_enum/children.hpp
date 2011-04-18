@@ -27,7 +27,11 @@ struct is_child_of : is_father_of< Fath_c, Child_c >
 
 template< typename HE >
 bool is_child_of( HE left, HE right ) {
-    return details::binary_function< HE, bool, mp::is_child_of >::value( left, right );
+    return details::binary_function<
+        HE,
+        bool,
+        mp::is_child_of
+    >::value( left, right );
 }
 
 /****************************************************************************
@@ -48,7 +52,11 @@ struct children : boost::mpl::copy_if<
 
 template< typename HE >
 const std::vector< HE >& children( HE e ) {
-    return details::unary_function< HE, const std::vector< HE >&, mp::children >::value( e );
+    return details::unary_function<
+        HE,
+        const std::vector< HE >&,
+        mp::children
+    >::value( e );
 }
 
 /****************************************************************************

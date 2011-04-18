@@ -43,12 +43,20 @@ struct is_ascendant_of : boost::mpl::or_<
 
 template< typename HE >
 bool is_ascendant_of( HE left, HE right ) {
-    return details::binary_function< HE, bool, mp::is_ascendant_of >::value( left, right );
+    return details::binary_function<
+        HE,
+        bool,
+        mp::is_ascendant_of
+    >::value( left, right );
 }
 
 template< typename HE >
 bool is_strict_ascendant_of( HE left, HE right ) {
-    return details::binary_function< HE, bool, mp::is_strict_ascendant_of >::value( left, right );
+    return details::binary_function<
+        HE,
+        bool,
+        mp::is_strict_ascendant_of
+    >::value( left, right );
 }
 
 /****************************************************************************
@@ -69,7 +77,11 @@ struct ascendants : boost::mpl::copy_if<
 
 template< typename HE >
 const std::vector< HE >& ascendants( HE e ) {
-    return details::unary_function< HE, const std::vector< HE >&, mp::ascendants >::value( e );
+    return details::unary_function<
+        HE,
+        const std::vector< HE >&,
+        mp::ascendants
+    >::value( e );
 }
 
 /****************************************************************************
@@ -94,7 +106,11 @@ struct strict_ascendants : boost::mpl::copy_if<
 
 template< typename HE >
 const std::vector< HE >& strict_ascendants( HE e ) {
-    return details::unary_function< HE, const std::vector< HE >&, mp::strict_ascendants >::value( e );
+    return details::unary_function<
+        HE,
+        const std::vector< HE >&,
+        mp::strict_ascendants
+    >::value( e );
 }
 
 /****************************************************************************

@@ -37,10 +37,10 @@ class Test:
 
     def initNodeChildren( self ):
         for father in self.nodes:
-            for son in self.nodes:
-                if len( son.name ) == len( father.name ) + 1 and son.name.startswith( father.name ):
-                    father.addChild( son );
-                    son.setFather( father );
+            for child in self.nodes:
+                if len( child.name ) == len( father.name ) + 1 and child.name.startswith( father.name ):
+                    father.addChild( child );
+                    child.setFather( father );
 
 class TestGenerator:
     def __init__( self, path, test ):

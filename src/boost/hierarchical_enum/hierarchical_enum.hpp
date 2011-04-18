@@ -29,7 +29,6 @@ BOOST_HE_FILIATIONS( BOOST_HE_CAT_NS( ns ), name, nodes )                   \
 BOOST_HE_ALL( BOOST_HE_CAT_NS( ns ), name, nodes )                          \
 BOOST_HE_SWITCH( BOOST_HE_CAT_NS( ns ), name, nodes )
 
-
 #define BOOST_HIERARCHICAL_ENUM( name, nodes )                              \
 BOOST_HE_ENUM( name, nodes )                                                \
 BOOST_HE_INTEGRAL_CONSTANTS( name, nodes )                                  \
@@ -47,7 +46,7 @@ BOOST_PP_TUPLE_ELEM( 3, 0, node )
 #define BOOST_HE_NODE_VALUE( node )                                         \
 BOOST_PP_TUPLE_ELEM( 3, 1, node )
 
-#define BOOST_HE_NODE_SONS( node )                                          \
+#define BOOST_HE_NODE_CHILDREN( node )                                      \
 BOOST_PP_TUPLE_ELEM( 3, 2, node )
 
 /****************************************************************************
@@ -55,10 +54,15 @@ BOOST_PP_TUPLE_ELEM( 3, 2, node )
 ****************************************************************************/
 
 #define BOOST_HE_ENUM( name, nodes )                                        \
-enum name { BOOST_PP_SEQ_ENUM( BOOST_PP_SEQ_TRANSFORM( BOOST_HE_ENUM__MACRO, name, nodes ) ) };
+enum name {                                                                 \
+    BOOST_PP_SEQ_ENUM(                                                      \
+        BOOST_PP_SEQ_TRANSFORM( BOOST_HE_ENUM__MACRO, name, nodes )         \
+    )                                                                       \
+};
 
 #define BOOST_HE_ENUM__MACRO( s, name, node )                               \
-BOOST_HE_NODE_NAME( node ) BOOST_PP_CAT( BOOST_HE_ENUM__MACRO_VAL_, BOOST_HE_NODE_VALUE( node ) )
+BOOST_HE_NODE_NAME( node )                                                  \
+BOOST_PP_CAT( BOOST_HE_ENUM__MACRO_VAL_, BOOST_HE_NODE_VALUE( node ) )
 
 #define BOOST_HE_ENUM__MACRO_VAL_DEF()
 
@@ -157,7 +161,8 @@ case BOOST_HE_SWITCH__DATA_NS( data ) BOOST_HE_NODE_NAME( node ):           \
         Condition,                                                          \
         typename boost::mpl::push_back<                                     \
             Enums,                                                          \
-            BOOST_HE_SWITCH__DATA_NS( data ) BOOST_HE_MAKE_INTEGRAL_C( BOOST_HE_NODE_NAME( node ) ) \
+            BOOST_HE_SWITCH__DATA_NS( data )                                \
+            BOOST_HE_MAKE_INTEGRAL_C( BOOST_HE_NODE_NAME( node ) )          \
         >::type                                                             \
     >::exec( boost::fusion::pop_front( enums ) );
 
@@ -233,16 +238,16 @@ BOOST_HE_FILIATION(                                                         \
     BOOST_HE_NODE_NAME(                                                     \
         BOOST_PP_SEQ_HEAD( BOOST_HE_FILIATIONS__STATE_NODES( state ) )      \
     ),                                                                      \
-    BOOST_HE_NODE_SONS(                                                     \
+    BOOST_HE_NODE_CHILDREN(                                                 \
         BOOST_PP_SEQ_HEAD( BOOST_HE_FILIATIONS__STATE_NODES( state ) )      \
     )                                                                       \
 )
 
 /***************************************************************************/
 
-#define BOOST_HE_FILIATION( ns, name, father, sons )                        \
+#define BOOST_HE_FILIATION( ns, name, father, children )                    \
 BOOST_PP_FOR(                                                               \
-    ( ns, name, father, sons ),                                             \
+    ( ns, name, father, children ),                                         \
     BOOST_HE_FILIATION__PRED,                                               \
     BOOST_HE_FILIATION__OP,                                                 \
     BOOST_HE_FILIATION__MACRO                                               \
@@ -257,18 +262,25 @@ BOOST_PP_TUPLE_ELEM( 4, 1, s )
 #define BOOST_HE_FILIATION__STATE_FATHER( s )                               \
 BOOST_PP_TUPLE_ELEM( 4, 2, s )
 
-#define BOOST_HE_FILIATION__STATE_SONS( s )                                 \
+#define BOOST_HE_FILIATION__STATE_CHILDREN( s )                             \
 BOOST_PP_TUPLE_ELEM( 4, 3, s )
 
 #define BOOST_HE_FILIATION__PRED( r, state )                                \
-BOOST_PP_DEC( BOOST_PP_SEQ_SIZE( BOOST_PP_SEQ_PUSH_BACK( BOOST_HE_FILIATION__STATE_SONS( state ), dummy ) ) )
+BOOST_PP_DEC(                                                               \
+    BOOST_PP_SEQ_SIZE(                                                      \
+        BOOST_PP_SEQ_PUSH_BACK(                                             \
+            BOOST_HE_FILIATION__STATE_CHILDREN( state ),                    \
+            dummy                                                           \
+        )                                                                   \
+    )                                                                       \
+)
 
 #define BOOST_HE_FILIATION__OP( r, state )                                  \
 (                                                                           \
     BOOST_HE_FILIATION__STATE_NS( state ),                                  \
     BOOST_HE_FILIATION__STATE_NAME( state ),                                \
     BOOST_HE_FILIATION__STATE_FATHER( state ),                              \
-    BOOST_PP_SEQ_TAIL( BOOST_HE_FILIATION__STATE_SONS( state ) )            \
+    BOOST_PP_SEQ_TAIL( BOOST_HE_FILIATION__STATE_CHILDREN( state ) )        \
 )
 
 #define BOOST_HE_FILIATION__MACRO( r, state )                               \
@@ -276,7 +288,7 @@ template<> struct                                                           \
 father<                                                                     \
     BOOST_HE_FILIATION__STATE_NS( state )                                   \
     BOOST_HE_MAKE_INTEGRAL_C(                                               \
-        BOOST_PP_SEQ_HEAD( BOOST_HE_FILIATION__STATE_SONS( state ) )        \
+        BOOST_PP_SEQ_HEAD( BOOST_HE_FILIATION__STATE_CHILDREN( state ) )    \
     )                                                                       \
 > : BOOST_HE_FILIATION__STATE_NS( state )                                   \
     BOOST_HE_MAKE_INTEGRAL_C(                                               \

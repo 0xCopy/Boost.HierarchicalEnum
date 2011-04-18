@@ -74,7 +74,12 @@ struct father : details::father< HE_c >
 
 template< typename HE >
 HE father( HE e ) {
-    return details::unary_function< HE, HE, mp::father, mp::has_father >::value( e );
+    return details::unary_function<
+        HE,
+        HE,
+        mp::father,
+        mp::has_father
+    >::value( e );
 }
 
 /****************************************************************************
@@ -94,7 +99,11 @@ struct is_father_of : boost::mpl::and_<
 
 template< typename HE >
 bool is_father_of( HE left, HE right ) {
-    return details::binary_function< HE, bool, mp::is_father_of >::value( left, right );
+    return details::binary_function<
+        HE,
+        bool,
+        mp::is_father_of
+    >::value( left, right );
 }
 
 } // namespace hierarchical_enum

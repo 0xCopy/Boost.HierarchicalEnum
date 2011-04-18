@@ -28,7 +28,11 @@ struct is_common_ascendant_of : boost::mpl::and_<
 
 template< typename HE >
 bool is_common_ascendant_of( HE left, HE middle, HE right ) {
-    return details::ternary_function< HE, bool, mp::is_common_ascendant_of >::value( left, middle, right );
+    return details::ternary_function<
+        HE,
+        bool,
+        mp::is_common_ascendant_of
+    >::value( left, middle, right );
 }
 
 /****************************************************************************
@@ -42,14 +46,18 @@ struct common_ascendants : boost::mpl::copy_if<
     original_data::all< typename Desc1_c::value_type >,
     is_common_ascendant_of< boost::mpl::_1, Desc1_c, Desc2_c >,
     boost::mpl::back_inserter< boost::mpl::vector<> >
-    >::type
+>::type
 {};
 
 } // namespace mp
 
 template< typename HE >
 const std::vector< HE >& common_ascendants( HE left, HE right ) {
-    return details::binary_function< HE, const std::vector< HE >&, mp::common_ascendants >::value( left, right );
+    return details::binary_function<
+        HE,
+        const std::vector< HE >&,
+        mp::common_ascendants
+    >::value( left, right );
 }
 
 /****************************************************************************
@@ -68,7 +76,11 @@ struct have_common_ascendant : boost::mpl::not_<
 
 template< typename HE >
 bool have_common_ascendant( HE left, HE right ) {
-    return details::binary_function< HE, bool, mp::have_common_ascendant >::value( left, right );
+    return details::binary_function<
+        HE,
+        bool,
+        mp::have_common_ascendant
+    >::value( left, right );
 }
 
 /****************************************************************************
@@ -88,7 +100,11 @@ struct is_common_strict_ascendant_of : boost::mpl::and_<
 
 template< typename HE >
 bool is_common_strict_ascendant_of( HE left, HE middle, HE right ) {
-    return details::ternary_function< HE, bool, mp::is_common_strict_ascendant_of >::value( left, middle, right );
+    return details::ternary_function<
+        HE,
+        bool,
+        mp::is_common_strict_ascendant_of
+    >::value( left, middle, right );
 }
 
 /****************************************************************************
@@ -109,7 +125,11 @@ struct common_strict_ascendants : boost::mpl::copy_if<
 
 template< typename HE >
 const std::vector< HE >& common_strict_ascendants( HE left, HE right ) {
-    return details::binary_function< HE, const std::vector< HE >&, mp::common_strict_ascendants >::value( left, right );
+    return details::binary_function<
+        HE,
+        const std::vector< HE >&,
+        mp::common_strict_ascendants
+    >::value( left, right );
 }
 
 /****************************************************************************
@@ -128,7 +148,11 @@ struct have_common_strict_ascendant : boost::mpl::not_<
 
 template< typename HE >
 bool have_common_strict_ascendant( HE left, HE right ) {
-    return details::binary_function< HE, bool, mp::have_common_strict_ascendant >::value( left, right );
+    return details::binary_function<
+        HE,
+        bool,
+        mp::have_common_strict_ascendant
+    >::value( left, right );
 }
 
 /// @todo first_common_ascendant, first_common_strict_ascendant
