@@ -36,7 +36,7 @@ class Test:
     def __init__( self, name, nodes, filiations ):
         self.name = name
         self.__filiations = filiations
-        self.__nodes = { n.name: n for n in nodes }
+        self.__nodes = dict( [ ( n.name, n ) for n in nodes ] )
         self.initNodeChildren( filiations )
 
     def initNodeChildren( self, filiations ):
