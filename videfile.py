@@ -37,7 +37,7 @@ class GeneratedTestSources( AtomicArtifact ):
         return files
 
     def __getFiles( self, test ):
-        return [ self.__context.buildkit.fileName( "gen", test.name, f ) for f in TestGenerator.files ]
+        return [ self.__context.buildkit.fileName( "gen", test.name, f ) for f in TestGenerator.cppFiles ]
         
     def doGetProductionAction( self ):
         return SystemAction(
