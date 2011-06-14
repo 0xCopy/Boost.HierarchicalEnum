@@ -83,7 +83,7 @@ class TestGenerator:
     __staticHppFiles = [ "header.hpp" ]
     __collections = {
         "child" : ( "children", Node.children ),
-        #"parent" : ( "parents", Node.parents ),
+        "parent" : ( "parents", Node.parents ),
         #"ascendant" : ( "ascendants", Node.ascendants ),
         #"descendant" : ( "descendant", Node.descendants ),
         #"strict_ascendant" : ( "strict_ascendants", Node.strictAscendants ),
