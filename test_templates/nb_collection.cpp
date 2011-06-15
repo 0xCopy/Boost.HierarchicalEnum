@@ -12,7 +12,7 @@ namespace bhe = boost::hierarchical_enum;
 
 BOOST_AUTO_TEST_CASE( nb_{{plural}} ) {
 {% for nodeList in test.nodeLists %}
-    BOOST_MPL_ASSERT(( boost::mpl::equal< bhe::nb_{{plural}}< {% for node in nodeList.nodes %}{{node.name}}_c{% if not forloop.last %}, {% endif %}{% endfor %} >, {{nodeList.collection|length}} > ));
+    BOOST_MPL_ASSERT(( boost::mpl::equal< bhe::nb_{{plural}}< {% for node in nodeList.nodes %}{{node.name}}_c{% if not forloop.last %}, {% endif %}{% endfor %} >, boost::mpl::int_< {{nodeList.collection|length}} > > ));
 
 {% endfor %}
 }
