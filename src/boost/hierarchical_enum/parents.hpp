@@ -10,7 +10,7 @@ template< typename Parent_c, typename Child_c >
 struct is_parent_of : data::filiation< typename Parent_c::value_type, Parent_c::value, Child_c::value >::value
 {};
 
-COLLECTION_FROM_PREDICATE( parents, is_parent_of )
+IMPLEMENT_COLLECTION( parent, parents )
 
 } // Namespace hierarchical_enum
 } // Namespace boost
