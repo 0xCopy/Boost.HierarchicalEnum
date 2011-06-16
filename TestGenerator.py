@@ -74,7 +74,7 @@ class Test:
     def nodeLists( self ):
         sets = []
         #for i in range( len( self.__nodes ) ):
-        for i in [ 0 ]:
+        for i in [ 0, 1 ]:
             sets += [ NodeList( nodes ) for nodes in itertools.product( self.__nodes, repeat = i + 1 ) ]
         return sets
 
@@ -95,8 +95,8 @@ class TestGenerator:
         files = list( TestGenerator.__staticCppFiles )
         for singular, ( plural, collection ) in TestGenerator.__collections.items():
             files.append( "is_%s_of.cpp" % singular )
-            files.append( "%s.cpp" % plural )
-            files.append( "nb_%s.cpp" % plural )
+            #files.append( "%s.cpp" % plural )
+            #files.append( "nb_%s.cpp" % plural )
         return files
 
     def __init__( self, path, test ):
@@ -110,8 +110,8 @@ class TestGenerator:
         for singular, ( plural, collection ) in TestGenerator.__collections.items():
             NodeList.currentCollection = collection
             self.__render( "is_%s_of.cpp" % singular, "is_collection_of.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
-            self.__render( "%s.cpp" % plural, "collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
-            self.__render( "nb_%s.cpp" % plural, "nb_collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
+            #self.__render( "%s.cpp" % plural, "collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
+            #self.__render( "nb_%s.cpp" % plural, "nb_collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
 
     def __render( self, file, template, context ):
         self.__open( file ).write( self.__removeMultipleBlankLines( 
@@ -147,15 +147,15 @@ class TestGenerator:
         return os.path.join( self.__path, self.__test.name, file )
 
 tests = [
-    Test( "OneNode", [ Node( "A" ) ], [] ),
-    Test( "TwoNodes", [ Node( "A" ), Node( "B" ) ], [ ( "A", "B" ) ] ),
+    #Test( "OneNode", [ Node( "A" ) ], [] ),
+    #Test( "TwoNodes", [ Node( "A" ), Node( "B" ) ], [ ( "A", "B" ) ] ),
     Test( "ThreeNodes", [ Node( "A" ), Node( "B" ), Node( "C" ) ], [ ( "A", "B" ), ( "B", "C" ) ] ),
-    Test( "TwoChildren", [ Node( "A" ), Node( "B" ), Node( "C" ) ], [ ( "A", "B" ), ( "A", "C" ) ] ),
-    Test( "TwoParents", [ Node( "A" ), Node( "B" ), Node( "C" ) ], [ ( "A", "C" ), ( "B", "C" ) ] ),
-    Test( "Diamond",
-        [ Node( "A" ), Node( "B" ), Node( "C" ), Node( "D" ), ],
-        [ ( "A", "B" ), ( "A", "C" ), ( "B", "D" ), ( "C", "D" ), ]
-    ),
+    #Test( "TwoChildren", [ Node( "A" ), Node( "B" ), Node( "C" ) ], [ ( "A", "B" ), ( "A", "C" ) ] ),
+    #Test( "TwoParents", [ Node( "A" ), Node( "B" ), Node( "C" ) ], [ ( "A", "C" ), ( "B", "C" ) ] ),
+    #Test( "Diamond",
+        #[ Node( "A" ), Node( "B" ), Node( "C" ), Node( "D" ), ],
+        #[ ( "A", "B" ), ( "A", "C" ), ( "B", "D" ), ( "C", "D" ), ]
+    #),
 ]
 
 cppFiles = TestGenerator.cppFiles()
