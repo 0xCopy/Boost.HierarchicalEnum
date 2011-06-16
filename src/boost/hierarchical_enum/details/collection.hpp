@@ -16,20 +16,18 @@ class NoneType {};
 } // Namespace hierarchical_enum
 } // Namespace boost
 
+//********************************************************** IMPLEMENT_COLLECTION
 #define IMPLEMENT_COLLECTION( singular, plural )                                \
 NARY_FUNCTIONS( singular, plural )                                              \
 VARIADIC_FUNCTIONS( singular, plural )
 
-
+//**************************************************************** NARY_FUNCTIONS
 #define NARY_FUNCTIONS( singular, plural )                                      \
 namespace details {                                                             \
 NARY_PREDICATE( BOOST_PP_CAT( BOOST_PP_CAT( is_, singular ), _of ) )            \
 NARY_COLLECTION( BOOST_PP_CAT( BOOST_PP_CAT( is_, singular ), _of ), plural )   \
+NARY_SIZE( plural )                                                             \
 }
-
-#define VARIADIC_FUNCTIONS( singular, plural )                                  \
-VARIADIC_PREDICATE( BOOST_PP_CAT( BOOST_PP_CAT( is_, singular ), _of ) )        \
-VARIADIC_COLLECTION( plural )
 
 #define NARY_PREDICATE( predicate )                                             \
 template< typename u, typename v1 >                                             \
@@ -60,6 +58,25 @@ struct BOOST_PP_CAT( collection, 2 ) : boost::mpl::copy_if<                     
     >::type                                                                     \
 {};
 
+#define NARY_SIZE( collection )                                                 \
+template< typename v1 >                                                         \
+struct BOOST_PP_CAT( BOOST_PP_CAT( nb_, collection ), 1 ) : boost::mpl::size<   \
+    BOOST_PP_CAT( collection, 1 )< v1 >                                         \
+>                                                                               \
+{};                                                                             \
+                                                                                \
+template< typename v1, typename v2 >                                            \
+struct BOOST_PP_CAT( BOOST_PP_CAT( nb_, collection ), 2 ) : boost::mpl::size<   \
+    BOOST_PP_CAT( collection, 2 )< v1, v2 >                                     \
+>                                                                               \
+{};
+
+//************************************************************ VARIADIC_FUNCTIONS
+#define VARIADIC_FUNCTIONS( singular, plural )                                  \
+VARIADIC_PREDICATE( BOOST_PP_CAT( BOOST_PP_CAT( is_, singular ), _of ) )        \
+VARIADIC_COLLECTION( plural )                                                   \
+VARIADIC_SIZE( plural )
+
 #define VARIADIC_PREDICATE( predicate )                                         \
 template< typename u, typename v1, typename v2 = details::NoneType >            \
 struct predicate;                                                               \
@@ -88,13 +105,18 @@ struct collection :                                                             
     details::BOOST_PP_CAT( collection, 2 )< v1, v2 >                            \
 {};
 
-/*
-#define COLLECTION_SIZE( collection )                                           \
-template< typename Node_c >                                                     \
-struct BOOST_PP_CAT( nb_, collection ) : boost::mpl::size<                      \
-    collection< Node_c >                                                        \
->                                                                               \
+#define VARIADIC_SIZE( collection )                                             \
+template< typename v1, typename v2 = details::NoneType >                        \
+struct BOOST_PP_CAT( nb_, collection );                                         \
+                                                                                \
+template< typename v1 >                                                         \
+struct BOOST_PP_CAT( nb_, collection )< v1, details::NoneType > :               \
+    details::BOOST_PP_CAT( BOOST_PP_CAT( nb_, collection ), 1 )< v1 >           \
+{};                                                                             \
+                                                                                \
+template< typename v1, typename v2 >                                            \
+struct BOOST_PP_CAT( nb_, collection ) :                                        \
+    details::BOOST_PP_CAT( BOOST_PP_CAT( nb_, collection ), 2 )< v1, v2 >       \
 {};
-*/
 
 #endif // Include guard
