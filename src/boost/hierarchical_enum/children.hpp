@@ -13,7 +13,7 @@ struct is_child_of : data::filiation< typename Parent_c::value_type, Parent_c::v
 
 } // Namespace details
 
-IMPLEMENT_COLLECTION( child, children )
+BOOST_HE_IMPLEMENT_COLLECTION( child, children )
 
 } // Namespace hierarchical_enum
 } // Namespace boost
