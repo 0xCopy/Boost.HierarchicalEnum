@@ -5,10 +5,13 @@
 
 namespace boost {
 namespace hierarchical_enum {
-    
+namespace details {
+
 template< typename Child_c, typename Parent_c >
-struct is_child_of1 : data::filiation< typename Parent_c::value_type, Parent_c::value, Child_c::value >::value
+struct is_child_of : data::filiation< typename Parent_c::value_type, Parent_c::value, Child_c::value >::value
 {};
+
+} // Namespace details
 
 IMPLEMENT_COLLECTION( child, children )
 

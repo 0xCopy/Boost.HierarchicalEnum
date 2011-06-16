@@ -95,7 +95,7 @@ class TestGenerator:
         files = list( TestGenerator.__staticCppFiles )
         for singular, ( plural, collection ) in TestGenerator.__collections.items():
             files.append( "is_%s_of.cpp" % singular )
-            #files.append( "%s.cpp" % plural )
+            files.append( "%s.cpp" % plural )
             #files.append( "nb_%s.cpp" % plural )
         return files
 
@@ -110,7 +110,7 @@ class TestGenerator:
         for singular, ( plural, collection ) in TestGenerator.__collections.items():
             NodeList.currentCollection = collection
             self.__render( "is_%s_of.cpp" % singular, "is_collection_of.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
-            #self.__render( "%s.cpp" % plural, "collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
+            self.__render( "%s.cpp" % plural, "collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
             #self.__render( "nb_%s.cpp" % plural, "nb_collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
 
     def __render( self, file, template, context ):
