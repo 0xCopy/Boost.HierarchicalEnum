@@ -73,9 +73,8 @@ class Test:
         
     def nodeLists( self ):
         sets = []
-        #for i in range( len( self.__nodes ) ):
-        for i in [ 0, 1 ]:
-            sets += [ NodeList( nodes ) for nodes in itertools.product( self.__nodes, repeat = i + 1 ) ]
+        for i in range( 1, 4 ):
+            sets += [ NodeList( nodes ) for nodes in itertools.product( self.__nodes, repeat = i ) ]
         return sets
 
 class TestGenerator:
