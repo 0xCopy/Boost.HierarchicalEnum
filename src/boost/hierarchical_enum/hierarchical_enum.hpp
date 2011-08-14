@@ -8,14 +8,16 @@
 namespace boost {
 namespace hierarchical_enum {
 namespace data {
-    template< typename T, T parent, T child >
-    struct filiation {
-        typedef boost::mpl::false_ value;
-    };
     
-    template< typename T >
-    struct all {
-    };
+template< typename T, T parent, T child >
+struct filiation {
+    typedef boost::mpl::false_ value;
+};
+
+template< typename T >
+struct all {
+};
+
 } // Namespace data
 } // Namespace hierarchical_enum
 } // Namespace boost
