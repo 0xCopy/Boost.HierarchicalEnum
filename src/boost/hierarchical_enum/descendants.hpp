@@ -30,6 +30,7 @@ struct is_descendant_of :
     >
 {};
 
+/// @todo Use find_if instead of count_if
 template< typename Descendant_c, typename Parent_c >
 struct is_strict_descendant_of :
     ::boost::mpl::not_<

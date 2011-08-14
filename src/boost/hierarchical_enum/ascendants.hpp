@@ -13,28 +13,29 @@ namespace boost {
 namespace hierarchical_enum {
 namespace details {
 
-template< typename Ascendant_c, typename Parent_c >
+template< typename Ascendant_c, typename Child_c >
 struct is_strict_ascendant_of;
 
-template< typename Ascendant_c, typename Parent_c >
+template< typename Ascendant_c, typename Child_c >
 struct is_ascendant_of :
     ::boost::mpl::or_<
         is_strict_ascendant_of<
             Ascendant_c,
-            Parent_c
+            Child_c
         >,
         ::boost::mpl::equal_to<
             Ascendant_c,
-            Parent_c
+            Child_c
         >
     >
 {};
 
-template< typename Ascendant_c, typename Parent_c >
+/// @todo Use find_if instead of count_if
+template< typename Ascendant_c, typename Child_c >
 struct is_strict_ascendant_of :
     ::boost::mpl::not_<
         ::boost::mpl::equal_to<
-            ::boost::mpl::count_if< parents< Parent_c >, is_ascendant_of< Ascendant_c, boost::mpl::_ > >,
+            ::boost::mpl::count_if< parents< Child_c >, is_ascendant_of< Ascendant_c, boost::mpl::_ > >,
             boost::mpl::int_< 0 >
         >
     >
