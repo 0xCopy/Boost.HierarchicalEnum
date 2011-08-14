@@ -1,6 +1,6 @@
 #include "header.hpp"
 
-#include <boost/hierarchical_enum/{{plural}}.hpp>
+#include <boost/hierarchical_enum/{{header}}.hpp>
 
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/equal.hpp>

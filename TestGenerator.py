@@ -81,18 +81,18 @@ class TestGenerator:
     __staticCppFiles = [ "main.cpp" ]
     __staticHppFiles = [ "header.hpp" ]
     __collections = {
-        "child" : ( "children", Node.children ),
-        "parent" : ( "parents", Node.parents ),
-        "ascendant" : ( "ascendants", Node.ascendants ),
-        "descendant" : ( "descendants", Node.descendants ),
-        "strict_ascendant" : ( "strict_ascendants", Node.strictAscendants ),
-        "strict_descendant" : ( "strict_descendants", Node.strictDescendants ),
+        "child" : ( "children", "children", Node.children ),
+        "parent" : ( "parents", "parents", Node.parents ),
+        "ascendant" : ( "ascendants", "ascendants", Node.ascendants ),
+        "descendant" : ( "descendants", "descendants", Node.descendants ),
+        "strict_ascendant" : ( "strict_ascendants", "ascendants", Node.strictAscendants ),
+        "strict_descendant" : ( "strict_descendants", "descendants", Node.strictDescendants ),
     }
 
     @staticmethod
     def cppFiles():
         files = list( TestGenerator.__staticCppFiles )
-        for singular, ( plural, collection ) in TestGenerator.__collections.items():
+        for singular, ( plural, header, collection ) in TestGenerator.__collections.items():
             files.append( "is_%s_of.cpp" % singular )
             files.append( "%s.cpp" % plural )
             files.append( "nb_%s.cpp" % plural )
@@ -106,11 +106,11 @@ class TestGenerator:
         for f in TestGenerator.__staticHppFiles + TestGenerator.__staticCppFiles:
             #print test.name, f
             self.__render( f, f, { "test" : self.__test } )
-        for singular, ( plural, collection ) in TestGenerator.__collections.items():
+        for singular, ( plural, header, collection ) in TestGenerator.__collections.items():
             NodeList.currentCollection = collection
-            self.__render( "is_%s_of.cpp" % singular, "is_collection_of.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
-            self.__render( "%s.cpp" % plural, "collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
-            self.__render( "nb_%s.cpp" % plural, "nb_collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural } )
+            self.__render( "is_%s_of.cpp" % singular, "is_collection_of.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural, "header": header } )
+            self.__render( "%s.cpp" % plural, "collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural, "header": header } )
+            self.__render( "nb_%s.cpp" % plural, "nb_collection.cpp", { "test" : self.__test, "singular" : singular, "plural" : plural, "header": header } )
 
     def __render( self, file, template, context ):
         self.__open( file ).write( self.__removeMultipleBlankLines( 
