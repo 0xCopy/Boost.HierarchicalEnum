@@ -83,9 +83,9 @@ class TestGenerator:
     __collections = {
         "child" : ( "children", Node.children ),
         "parent" : ( "parents", Node.parents ),
-        #"ascendant" : ( "ascendants", Node.ascendants ),
+        "ascendant" : ( "ascendants", Node.ascendants ),
         "descendant" : ( "descendants", Node.descendants ),
-        #"strict_ascendant" : ( "strict_ascendants", Node.strictAscendants ),
+        "strict_ascendant" : ( "strict_ascendants", Node.strictAscendants ),
         "strict_descendant" : ( "strict_descendants", Node.strictDescendants ),
     }
 
