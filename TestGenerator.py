@@ -84,9 +84,9 @@ class TestGenerator:
         "child" : ( "children", Node.children ),
         "parent" : ( "parents", Node.parents ),
         #"ascendant" : ( "ascendants", Node.ascendants ),
-        #"descendant" : ( "descendant", Node.descendants ),
+        "descendant" : ( "descendants", Node.descendants ),
         #"strict_ascendant" : ( "strict_ascendants", Node.strictAscendants ),
-        #"strict_descendant" : ( "strict_descendants", Node.strictDescendants ),
+        "strict_descendant" : ( "strict_descendants", Node.strictDescendants ),
     }
 
     @staticmethod
