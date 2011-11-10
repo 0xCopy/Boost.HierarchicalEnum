@@ -1,0 +1,6 @@
+Technical improvements
+======================
+
+- See BOOST_FUSION_ADAPT_STRUCT_FILLER_0 to remove the double parenthesis in BOOST_HIERARCHICAL_ENUM.
+
+- See BOOST_FUSION_DEFINE_STRUCT for how to deal with namespaces.
