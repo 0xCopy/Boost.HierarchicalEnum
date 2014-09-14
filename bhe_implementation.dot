@@ -1,0 +1,50 @@
+digraph d {
+    rankdir="BT";
+    NARY_PREDICATE_foobar [shape="box", label="NARY_PREDICATE( is_foobar_of )"];
+    COLLECTION_FROM_PREDICATE_is_foobar_of1 [shape="box", label="COLLECTION_FROM_PREDICATE( is_foobar_of1 )"];
+    COLLECTION_FROM_PREDICATE_is_foobar_of2 [shape="box", label="COLLECTION_FROM_PREDICATE( is_foobar_of2 )"];
+    COLLECTION_FROM_PREDICATE_is_foobar_ofN [shape="box", label="COLLECTION_FROM_PREDICATE( is_foobar_ofN )"];
+    VARIADIC_FUNCTION_is_foobar_of [shape="box", label="VARIADIC_FUNCTION( is_foobar_of )"];
+    VARIADIC_FUNCTION_foobars [shape="box", label="VARIADIC_FUNCTION( foobars )"];
+    VARIADIC_FUNCTION_nb_foobars [shape="box", label="VARIADIC_FUNCTION( nb_foobars )"];
+    
+    NARY_PREDICATE_foobar -> "details::is_foobar_of";
+    "details::is_foobar_of1" -> NARY_PREDICATE_foobar;
+    "details::is_foobar_of2" -> NARY_PREDICATE_foobar;
+    "details::is_foobar_ofN" -> NARY_PREDICATE_foobar;
+    
+    VARIADIC_FUNCTION_is_foobar_of -> "details::is_foobar_of1"
+    VARIADIC_FUNCTION_is_foobar_of -> "details::is_foobar_of2"
+    VARIADIC_FUNCTION_is_foobar_of -> "details::is_foobar_ofN"
+    is_foobar_of -> VARIADIC_FUNCTION_is_foobar_of;
+    
+    "details::foobars1" -> COLLECTION_FROM_PREDICATE_is_foobar_of1 -> "details::is_foobar_of1";
+    "details::nb_foobars1" -> COLLECTION_FROM_PREDICATE_is_foobar_of1;
+    "details::foobars2" -> COLLECTION_FROM_PREDICATE_is_foobar_of2 -> "details::is_foobar_of2";
+    "details::nb_foobars2" -> COLLECTION_FROM_PREDICATE_is_foobar_of2;
+    "details::foobarsN" -> COLLECTION_FROM_PREDICATE_is_foobar_ofN -> "details::is_foobar_ofN";
+    "details::nb_foobarsN" -> COLLECTION_FROM_PREDICATE_is_foobar_ofN;
+    
+    VARIADIC_FUNCTION_foobars -> "details::foobars1";
+    VARIADIC_FUNCTION_foobars -> "details::foobars2";
+    VARIADIC_FUNCTION_foobars -> "details::foobarsN";
+    foobars -> VARIADIC_FUNCTION_foobars;
+    
+    VARIADIC_FUNCTION_nb_foobars -> "details::nb_foobars1";
+    VARIADIC_FUNCTION_nb_foobars -> "details::nb_foobars2";
+    VARIADIC_FUNCTION_nb_foobars -> "details::nb_foobarsN";
+    nb_foobars -> VARIADIC_FUNCTION_nb_foobars;
+    
+    {
+        rank="same";
+        nb_foobars;
+        foobars;
+        is_foobar_of;
+    }
+    {
+        rank="same";
+        VARIADIC_FUNCTION_nb_foobars;
+        VARIADIC_FUNCTION_foobars;
+        VARIADIC_FUNCTION_is_foobar_of;
+    }
+}
